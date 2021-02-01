@@ -1,24 +1,23 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
-class App extends Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      success : false,
-      url : ""
-    }
-  }
+const App = () => {
+  const [success, setSuccess] = useState(false);
+  const [url, setUrl] = useState("");
+  const [uploadInput, setUploadInput] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   
-  handleChange = (ev) => {
-    this.setState({success: false, url : ""});
-    
+  const handleChange = (ev) => {
+    setSuccess(false);
+    setUrl("")    
   }
 
   // Perform the upload
-  handleUpload = (ev) => {
-    let file = this.uploadInput.files[0];
+  const handleUpload = (ev) => {
+    setIsUploading(true);
+
+    let file = uploadInput.files[0];
     // Split the filename to get the name and type
-    let fileParts = this.uploadInput.files[0].name.split('.');
+    let fileParts = uploadInput.files[0].name.split('.');
     let fileName = fileParts[0];
     let fileType = fileParts[1];
     console.log("Preparing the upload");
@@ -31,18 +30,12 @@ class App extends Component {
     ).then(response => {
       return response.json();
     }).then( response => {
-      var returnData = response.data.returnData;
-      var signedRequest = returnData.signedRequest;
-      var url = returnData.url;
-      this.setState({url: url})
+      const returnData = response.data.returnData;
+      const signedRequest = returnData.signedRequest;
+      const url = returnData.url;
+      setUrl(url)
       console.log("Recieved a signed request " + signedRequest);
       
-     // Put the fileType in the headers for the upload
-      // var options = {
-      //   headers: {
-      //     'Content-Type': fileType
-      //   }
-      // };
       if (fileType === "mp4" || fileType === "mov") {
         fileType = "video/" + fileType;
       }    
@@ -54,36 +47,47 @@ class App extends Component {
       // fetch(signedRequest,file,options)
       .then(result => {
         console.log("Response from s3")
-        this.setState({success: true});
+        setSuccess(true);
+        setIsUploading(false);
       })
       .catch(error => {
         alert("ERROR " + JSON.stringify(error));
+        setIsUploading(false);
       })
     })
     .catch(error => {
       alert(JSON.stringify(error));
+      setIsUploading(false);
     })
   }
 
-  render() {
-    const Success_message = () => (
-      <div style={{padding:50}}>
-        <h3 style={{color: 'green'}}>SUCCESSFUL UPLOAD</h3>
-        <a href={this.state.url}>Access the file here</a>
+  const Success_message = () => (
+    <div style={{padding:50}}>
+      <h3 style={{color: 'green'}}>SUCCESSFUL UPLOAD</h3>
+      <a href={url}>Access the file here</a>
+      <br/>
+    </div>
+  )
+
+  const Uploading_message = () => (
+    <div style={{padding:50}}>
+      <h3 style={{color: 'red'}}>UPLOADING NOW...</h3>
+      <br/>
+    </div>
+  )
+
+  return (
+    <div className="App">
+      <center>
+        <h1>UPLOAD A FILE</h1>
+        {success ? <Success_message/> : null}
+        {isUploading ? <Uploading_message/> : null}
+        <input onChange={handleChange} ref={(ref) => { setUploadInput(ref) }} type="file"/>
         <br/>
-      </div>
-    )
-    return (
-      <div className="App">
-        <center>
-          <h1>UPLOAD A FILE</h1>
-          {this.state.success ? <Success_message/> : null}
-          <input onChange={this.handleChange} ref={(ref) => { this.uploadInput = ref; }} type="file"/>
-          <br/>
-          <button onClick={this.handleUpload}>UPLOAD</button>
-        </center>
-      </div>
-    );
-  }
+        <button onClick={handleUpload}>UPLOAD</button>
+      </center>
+    </div>
+  );
 }
+
 export default App;
