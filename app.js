@@ -51,7 +51,7 @@ app.post('/sign_s3', (req, res) => {
 
 
 // Setting port
-app.set('port', process.env.PORT || 8000);
+app.set('port', process.env.PORT || 8888);
 
 let server = app.listen(app.settings.port,()=>{
     console.log('Server ready on ', app.settings.port);

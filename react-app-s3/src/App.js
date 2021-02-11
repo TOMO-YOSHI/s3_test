@@ -21,7 +21,7 @@ const App = () => {
     let fileName = fileParts[0];
     let fileType = fileParts[1];
     console.log("Preparing the upload");
-    fetch("http://localhost:8000/sign_s3",
+    fetch("http://localhost:8888/sign_s3",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
