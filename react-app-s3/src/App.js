@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import S3Test from './components/S3Test';
 
 const App = () => {
+  return <S3Test />;
   const [success, setSuccess] = useState(false);
   const [url, setUrl] = useState("");
   const [uploadInput, setUploadInput] = useState("");
